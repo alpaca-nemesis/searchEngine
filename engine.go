@@ -28,9 +28,6 @@ var (
 	// searcher is coroutine safe
 	searcher = riot.Engine{}
 	path     = "/home/crowix/go/src/storeTest/store"
-	text = "我日你个鬼鬼"
-	text1 = "hehe"
-	text2 = "阿基克里斯蒂发几阿拉开设的发觉了卡萨将大幅卡拉上来看打飞机拉卡撒"
 
 	opts = types.EngineOpts{
 		Using: 1,
@@ -80,11 +77,15 @@ func initEngine() {
 	// os.MkdirAll(path, 0777)
 
 	// Add the document to the index, docId starts at 1
-	searcher.Index("21", types.DocData{Content: text})
-	searcher.Index("22", types.DocData{Content: text1})
-	searcher.Index("23", types.DocData{Content: text2})
+	save := searcher.NumDocsIndexed()
+	var text string
+	for i:=0;i<10;i++{
+		save = save + 1
+		text = fmt.Sprint("%s:%d","我日你个鬼鬼",  save)
+		searcher.Index(string(save), types.DocData{Content: text})
+	}
 
-	searcher.RemoveDoc("5")
+	//searcher.RemoveDoc("5")
 
 	// Wait for the index to refresh
 	searcher.Flush()
