@@ -20,23 +20,55 @@ type SearchRequest struct {
 type SearchResponse struct {
 	Content types.SearchResp
 }
-func main() {
+
+
+type AddRequest struct {
+	Compulsive bool
+	Content string
+}
+
+type AddResponse struct {
+	Content string
+}
+
+func search() {
 	conn, err := jsonrpc.Dial("tcp", "127.0.0.1:8096")
 	if err != nil {
 		log.Fatalln("dailing error: ", err)
 	}
 
-	req := SearchRequest{"日"}
+	req := SearchRequest{"太阳"}
 	var res SearchResponse
-	for i:=0; i<10; i++{
+	for i:=0; i<1; i++{
 		fmt.Println("time:", i)
 		err = conn.Call("RPCEngine.Search", req, &res)
 		if err != nil {
-			log.Fatalln("arith error: ", err)
+			log.Fatalln("search error: ", err)
 		}
 		fmt.Println("request", req.Content)
 		fmt.Println("response", res.Content)
 		time.Sleep(1000000)
 	}
 
+}
+func add() {
+	conn, err := jsonrpc.Dial("tcp", "127.0.0.1:8096")
+	if err != nil {
+		log.Fatalln("dailing error: ", err)
+	}
+
+	req := AddRequest{false,"太阳出来我爬山破"}
+	var res AddResponse
+
+	err = conn.Call("RPCEngine.AddContent", req, &res)
+	fmt.Println("request", req.Content)
+	fmt.Println("response", res.Content)
+	if err != nil {
+		log.Fatalln("add error: ", err)
+	}
+
+}
+
+func main(){
+	search()
 }

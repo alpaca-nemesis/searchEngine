@@ -22,12 +22,14 @@ import (
 	"net"
 	"net/rpc"
 	"net/rpc/jsonrpc"
+	"strconv"
+	"time"
 )
 
 var (
 	// searcher is coroutine safe
 	searcher = riot.Engine{}
-	path     = "/home/crowix/go/src/storeTest/store"
+	path     = "/home/crowix/go/src/searchEngine/store"
 
 	opts = types.EngineOpts{
 		Using: 1,
@@ -43,8 +45,10 @@ var (
 	}
 )
 
-type RPCEngine struct {
 
+//--------------------search rpc engine--------------
+type RPCEngine struct {
+	flushCount int
 }
 
 type SearchRequest struct {
@@ -53,6 +57,15 @@ type SearchRequest struct {
 
 type SearchResponse struct {
 	Content types.SearchResp
+}
+
+type AddRequest struct {
+	Compulsive bool
+	Content string
+}
+
+type AddResponse struct {
+	Content string
 }
 
 func (this *RPCEngine)Search(req SearchRequest, res *SearchResponse) error{
@@ -65,8 +78,19 @@ func (this *RPCEngine)Search(req SearchRequest, res *SearchResponse) error{
 	res.Content = sea
 	fmt.Println("search response: ", sea)
 	return nil
-
 }
+
+func (this *RPCEngine)AddContent(req AddRequest, res *AddResponse) error{
+	index := int(searcher.NumDocsIndexed()) + this.flushCount
+
+	searcher.Index( strconv.Itoa(index), types.DocData{Content: req.Content})
+	searcher.Flush()
+	time.Sleep(time.Duration(2)*time.Second)
+	res.Content = fmt.Sprintln("Created index number: ", searcher.NumDocsIndexed())
+	log.Println("Created index number: ", searcher.NumDocsIndexed())
+	return nil
+}
+
 
 func initEngine() {
 	// gob.Register(MyAttriStruct{})
@@ -77,18 +101,18 @@ func initEngine() {
 	// os.MkdirAll(path, 0777)
 
 	// Add the document to the index, docId starts at 1
-	save := searcher.NumDocsIndexed()
-	var text string
-	for i:=0;i<10;i++{
-		save = save + 1
-		text = fmt.Sprint("%s:%d","我日你个鬼鬼",  save)
-		searcher.Index(string(save), types.DocData{Content: text})
-	}
+	//save := searcher.NumDocsIndexed()
+	//var text string
+	//for i:=0;i<10;i++{
+	//	save = save + 1
+	//	text = fmt.Sprint("%s:%d","我日你个鬼鬼",  save)
+	//	searcher.Index(string(save), types.DocData{Content: text})
+	//}
 
 	//searcher.RemoveDoc("5")
 
 	// Wait for the index to refresh
-	searcher.Flush()
+	//searcher.Flush()
 
 	log.Println("Created index number: ", searcher.NumDocsIndexed())
 }
