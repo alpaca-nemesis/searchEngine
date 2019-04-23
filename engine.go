@@ -84,11 +84,11 @@ func (this *RPCEngine)AddContent(req AddRequest, res *AddResponse) error{
 	index := int(searcher.NumDocsIndexed()) + this.flushCount
 
 	searcher.Index( strconv.Itoa(index), types.DocData{Content: req.Content})
-	time.Sleep(time.Duration(1)*time.Second)
+	//time.Sleep(time.Duration(1)*time.Second)
 	searcher.Flush()
-	time.Sleep(time.Duration(1)*time.Second)
+	//time.Sleep(time.Duration(1)*time.Second)
 	res.Content = fmt.Sprintln("Created index number: ", searcher.NumDocsIndexed())
-	log.Println("Created index number: ", searcher.NumDocsIndexed())
+	log.Println("Created index number: ", searcher.NumDocsIndexed()-1)
 	return nil
 }
 
@@ -98,13 +98,14 @@ func initEngine() {
 
 	// var path = "./riot-index"
 	searcher.Init(opts)
-	defer searcher.Close()
+	defer searcher.Flush()
 
 	save := searcher.NumDocsIndexed()
 	var text string
 	for i:=0;i<10;i++{
 		save = save + 1
 		text = fmt.Sprint("%s:%d","我日你个鬼鬼",  save)
+		time.Sleep(time.Duration(1)*time.Second)
 		searcher.Index(string(save), types.DocData{Content: text})
 	}
 	searcher.Flush()
@@ -163,6 +164,7 @@ func main() {
 	//localAdd()
 	initRPC()
 	//restoreIndex()
+	defer searcher.Close()
 
 
 

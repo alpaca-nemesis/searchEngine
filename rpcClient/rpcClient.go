@@ -37,7 +37,7 @@ func search() {
 		log.Fatalln("dailing error: ", err)
 	}
 
-	req := SearchRequest{"太阳"}
+	req := SearchRequest{"唱歌"}
 	//req := SearchRequest{"日"}
 	var res SearchResponse
 	for i:=0; i<1; i++{
@@ -58,7 +58,7 @@ func add() {
 		log.Fatalln("dailing error: ", err)
 	}
 
-	req := AddRequest{false,"太阳出来我爬山破"}
+	req := AddRequest{false,"爬上乐山破我想唱歌"}
 	var res AddResponse
 
 	err = conn.Call("RPCEngine.AddContent", req, &res)
@@ -71,5 +71,5 @@ func add() {
 }
 
 func main(){
-	add()
+	search()
 }
