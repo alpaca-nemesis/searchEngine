@@ -84,8 +84,9 @@ func (this *RPCEngine)AddContent(req AddRequest, res *AddResponse) error{
 	index := int(searcher.NumDocsIndexed()) + this.flushCount
 
 	searcher.Index( strconv.Itoa(index), types.DocData{Content: req.Content})
+	time.Sleep(time.Duration(1)*time.Second)
 	searcher.Flush()
-	time.Sleep(time.Duration(2)*time.Second)
+	time.Sleep(time.Duration(1)*time.Second)
 	res.Content = fmt.Sprintln("Created index number: ", searcher.NumDocsIndexed())
 	log.Println("Created index number: ", searcher.NumDocsIndexed())
 	return nil
@@ -98,23 +99,37 @@ func initEngine() {
 	// var path = "./riot-index"
 	searcher.Init(opts)
 	defer searcher.Close()
+
+	save := searcher.NumDocsIndexed()
+	var text string
+	for i:=0;i<10;i++{
+		save = save + 1
+		text = fmt.Sprint("%s:%d","我日你个鬼鬼",  save)
+		searcher.Index(string(save), types.DocData{Content: text})
+	}
+	searcher.Flush()
+	//localAdd()
 	// os.MkdirAll(path, 0777)
 
 	// Add the document to the index, docId starts at 1
-	//save := searcher.NumDocsIndexed()
-	//var text string
-	//for i:=0;i<10;i++{
-	//	save = save + 1
-	//	text = fmt.Sprint("%s:%d","我日你个鬼鬼",  save)
-	//	searcher.Index(string(save), types.DocData{Content: text})
-	//}
 
-	//searcher.RemoveDoc("5")
-
-	// Wait for the index to refresh
-	//searcher.Flush()
+	//
+	////searcher.RemoveDoc("5")
+	//
+	////Wait for the index to refresh
 
 	log.Println("Created index number: ", searcher.NumDocsIndexed())
+}
+
+func localAdd(){
+	save := searcher.NumDocsIndexed()
+	var text string
+	for i:=0;i<10;i++{
+		save = save + 1
+		text = fmt.Sprint("%s:%d","我日你个鬼鬼",  save)
+		searcher.Index(string(save), types.DocData{Content: text})
+	}
+	searcher.Flush()
 }
 
 func initRPC(){
@@ -145,6 +160,7 @@ func initRPC(){
 
 func main() {
 	initEngine()
+	//localAdd()
 	initRPC()
 	//restoreIndex()
 

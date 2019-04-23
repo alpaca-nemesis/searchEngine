@@ -38,6 +38,7 @@ func search() {
 	}
 
 	req := SearchRequest{"太阳"}
+	//req := SearchRequest{"日"}
 	var res SearchResponse
 	for i:=0; i<1; i++{
 		fmt.Println("time:", i)
@@ -70,5 +71,5 @@ func add() {
 }
 
 func main(){
-	search()
+	add()
 }
