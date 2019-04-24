@@ -71,5 +71,9 @@ func add() {
 }
 
 func main(){
+	//for i:=0; i<100; i++{
+	//	time.Sleep(time.Duration(100)*time.Millisecond)
+	//	add()
+	//}
 	search()
 }

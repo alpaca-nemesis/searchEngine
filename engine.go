@@ -88,7 +88,7 @@ func (this *RPCEngine)AddContent(req AddRequest, res *AddResponse) error{
 	searcher.Flush()
 	//time.Sleep(time.Duration(1)*time.Second)
 	res.Content = fmt.Sprintln("Created index number: ", searcher.NumDocsIndexed())
-	log.Println("Created index number: ", searcher.NumDocsIndexed()-1)
+	log.Println("Created index number: ", searcher.NumDocsIndexed())
 	return nil
 }
 
@@ -100,15 +100,15 @@ func initEngine() {
 	searcher.Init(opts)
 	defer searcher.Flush()
 
-	save := searcher.NumDocsIndexed()
-	var text string
-	for i:=0;i<10;i++{
-		save = save + 1
-		text = fmt.Sprint("%s:%d","我日你个鬼鬼",  save)
-		time.Sleep(time.Duration(1)*time.Second)
-		searcher.Index(string(save), types.DocData{Content: text})
-	}
-	searcher.Flush()
+	//save := searcher.NumDocsIndexed()
+	//var text string
+	//for i:=0;i<10;i++{
+	//	save = save + 1
+	//	text = fmt.Sprint("%s:%d","我日你个鬼鬼",  save)
+	//	time.Sleep(time.Duration(1)*time.Second)
+	//	searcher.Index(string(save), types.DocData{Content: text})
+	//}
+	//searcher.Flush()
 	//localAdd()
 	// os.MkdirAll(path, 0777)
 
@@ -125,9 +125,11 @@ func initEngine() {
 func localAdd(){
 	save := searcher.NumDocsIndexed()
 	var text string
-	for i:=0;i<10;i++{
+	for i:=0;i<500;i++{
 		save = save + 1
+		fmt.Println(save)
 		text = fmt.Sprint("%s:%d","我日你个鬼鬼",  save)
+		time.Sleep(time.Duration(1)*time.Second)
 		searcher.Index(string(save), types.DocData{Content: text})
 	}
 	searcher.Flush()
