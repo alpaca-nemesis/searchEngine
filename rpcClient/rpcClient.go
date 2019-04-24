@@ -37,7 +37,7 @@ func search() {
 		log.Fatalln("dailing error: ", err)
 	}
 
-	req := SearchRequest{"唱歌"}
+	req := SearchRequest{"吃"}
 	//req := SearchRequest{"日"}
 	var res SearchResponse
 	for i:=0; i<1; i++{

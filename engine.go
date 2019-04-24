@@ -31,6 +31,7 @@ var (
 	searcher = riot.Engine{}
 	path     = "/home/crowix/go/src/searchEngine/store"
 
+
 	opts = types.EngineOpts{
 		Using: 1,
 		IndexerOpts: &types.IndexerOpts{
@@ -83,10 +84,12 @@ func (this *RPCEngine)Search(req SearchRequest, res *SearchResponse) error{
 func (this *RPCEngine)AddContent(req AddRequest, res *AddResponse) error{
 	index := int(searcher.NumDocsIndexed()) + this.flushCount
 
+
 	searcher.Index( strconv.Itoa(index), types.DocData{Content: req.Content})
-	//time.Sleep(time.Duration(1)*time.Second)
-	searcher.Flush()
-	//time.Sleep(time.Duration(1)*time.Second)
+	if req.Compulsive == true{
+		searcher.Flush()
+	}
+	//searcher.Flush()
 	res.Content = fmt.Sprintln("Created index number: ", searcher.NumDocsIndexed())
 	log.Println("Created index number: ", searcher.NumDocsIndexed())
 	return nil
