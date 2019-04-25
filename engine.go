@@ -23,6 +23,7 @@ import (
 	"net/rpc"
 	"net/rpc/jsonrpc"
 	"strconv"
+	"sync/atomic"
 	"time"
 )
 
@@ -30,7 +31,7 @@ var (
 	// searcher is coroutine safe
 	searcher = riot.Engine{}
 	path     = "/home/crowix/go/src/searchEngine/store"
-
+	index uint64
 
 	opts = types.EngineOpts{
 		Using: 1,
@@ -49,7 +50,7 @@ var (
 
 //--------------------search rpc engine--------------
 type RPCEngine struct {
-	flushCount int
+	flushCount uint64
 }
 
 type SearchRequest struct {
@@ -82,14 +83,13 @@ func (this *RPCEngine)Search(req SearchRequest, res *SearchResponse) error{
 }
 
 func (this *RPCEngine)AddContent(req AddRequest, res *AddResponse) error{
-	index := int(searcher.NumDocsIndexed()) + this.flushCount
-
-
-	searcher.Index( strconv.Itoa(index), types.DocData{Content: req.Content})
-	if req.Compulsive == true{
+	atomic.AddUint64(&index, 1)
+	atomic.AddUint64(&this.flushCount, 1)
+	searcher.Index( strconv.Itoa(int(index)), types.DocData{Content: req.Content})
+	if req.Compulsive == true || this.flushCount >= 10{
 		searcher.Flush()
+		atomic.StoreUint64(&this.flushCount, 0)
 	}
-	//searcher.Flush()
 	res.Content = fmt.Sprintln("Created index number: ", searcher.NumDocsIndexed())
 	log.Println("Created index number: ", searcher.NumDocsIndexed())
 	return nil
@@ -121,7 +121,7 @@ func initEngine() {
 	////searcher.RemoveDoc("5")
 	//
 	////Wait for the index to refresh
-
+	index = searcher.NumDocsIndexed()
 	log.Println("Created index number: ", searcher.NumDocsIndexed())
 }
 
@@ -141,7 +141,7 @@ func localAdd(){
 func initRPC(){
 	err := rpc.Register(new(RPCEngine)) // 注册rpc服务
 	if err == nil{
-		fmt.Println("RPC service has been registered")
+		log.Println("RPC service has been registered")
 	}
 
 	lis, err := net.Listen("tcp", "127.0.0.1:8096")
@@ -149,7 +149,7 @@ func initRPC(){
 		log.Fatalln("fatal error: ", err)
 	}
 
-	fmt.Println( "start connection")
+	log.Println( "start connection")
 
 	for {
 		conn, err := lis.Accept() // 接收客户端连接请求
